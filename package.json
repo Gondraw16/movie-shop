@@ -1,0 +1,27 @@
+{
+    "name": "movie-shop",
+    "version": "0.0.1",
+    "description": "movie-shop",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "test": "jest"
+    },
+    "repository": {
+        "type": "git"
+    },
+    "keywords": [
+        "typescript"
+    ],
+    "author": "Juan Luis",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/uuid": "^10.0.0",
+        "jest": "^29.0.0",
+        "typescript": "^5.5.3"
+    },
+    "dependencies": {
+        "uuid": "^11.0.3"
+    }
+}
