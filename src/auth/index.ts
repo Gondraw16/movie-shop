@@ -1,20 +1,18 @@
-import { signupForm } from './form-states.js';
 import { handleSubmit, validInput } from './validators/form-validations.js';
-
-// Forms
-const signup:HTMLFormElement|null = document.querySelector('#signup');
-const login:HTMLFormElement|null = document.querySelector('#login');
-
-
-// Inputs
-const signupInputs:NodeListOf<HTMLInputElement> = document.querySelectorAll('input');
-
+import { logged } from './logged.js';
+import { remember } from './remember.js';
+import { loginForm, signupForm } from './form-states.js';
+import { login, signup } from './components/forms.js';
+import { loginInputs, signupInputs } from './components/inputs.js';
+import { FuncVoid } from '../interfaces/interfaces.js';
 
 document.addEventListener('DOMContentLoaded', ():void => {
+    logged();
     addEventListeners();
+    remember();
 });
 
-const addEventListeners = (): void => {
+const addEventListeners:FuncVoid = ():void => {
 
     if(signup) {
 
@@ -23,7 +21,17 @@ const addEventListeners = (): void => {
             if(input.type !== 'radio' && input.type !== 'date') input.addEventListener('keyup', (e:Event):boolean => validInput(signupForm, e));
         });
 
-        signup?.addEventListener('submit', (e):Promise<void> => handleSubmit(signupForm, e));
-        
+        signup?.addEventListener('submit', (e):Promise<void> => handleSubmit(signupForm, e, 'signup'));   
+
     }
+
+    if(login) {
+
+        loginInputs.forEach((input:HTMLInputElement):void => {
+            input.addEventListener('keyup', (e:Event):boolean => validInput(loginForm, e));
+        });
+
+        login?.addEventListener('submit', (e):Promise<void> => handleSubmit(loginForm, e, 'login'));
+    }
+    
 }

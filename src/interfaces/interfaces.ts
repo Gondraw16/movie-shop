@@ -17,9 +17,29 @@ export interface GenerateAlert {
 }
 
 export interface ClearAlert {
-    (reference: HTMLElement | null):void
+    (reference: HTMLElement | null, classList:string):void
 }
 
 export interface HandleSubmit {
-    (initialForm: FormData, e: Event):Promise<void>
+    (initialForm: FormData, e: Event, type:string):Promise<void>
+}
+
+export interface FuncFormData {
+    (): FormData | null;
+  }
+
+export interface FuncVoid {
+    ():void;
+}
+
+export interface AddNewUser {
+    (body: FormData): Promise<void>
+}
+
+export interface LoginUser {
+    (data: FormData): Promise<FormData | undefined>
+}
+
+export interface IsFormValid {
+    (form:FormData): boolean
 }

@@ -1,0 +1,1 @@
+export const button:HTMLButtonElement = document.querySelector('button[type="submit"]') as HTMLButtonElement;

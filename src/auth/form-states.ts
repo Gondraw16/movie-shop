@@ -11,7 +11,6 @@ export const signupForm:FormData = {
 }
 
 export const loginForm:FormData = {
-    username: '',
     email: '',
     password: '',
 }

@@ -1,8 +1,9 @@
-import { addNewUser } from '../../API/Api.js';
-import { ClearAlert, GenerateAlert, HandleSubmit, IsEmpty, IsMailValid, ValidInput } from '../../interfaces/interfaces.js';
+import { addNewUser, loginAsUser } from '../../API/Api.js';
+import { ClearAlert, GenerateAlert, HandleSubmit, IsEmpty, IsFormValid, IsMailValid, ValidInput } from '../../interfaces/interfaces.js';
+import { emailRegex } from './Regex.js';
 import { FormData } from '../../types/types';
-
-const emailRegex:RegExp =  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+import { inputRemember } from '../components/inputs.js';
+import { button } from '../components/button.js';
 
 export const validInput:ValidInput = (initialForm:FormData, e:Event):boolean => {
 
@@ -10,18 +11,16 @@ export const validInput:ValidInput = (initialForm:FormData, e:Event):boolean => 
     const reference:HTMLDivElement = target.parentElement as HTMLDivElement;
     const label:HTMLLabelElement = target?.parentElement?.children[1] as HTMLLabelElement;
 
-    const button:HTMLButtonElement = document.querySelector('button[type="submit"]') as HTMLButtonElement;
-
     if(target.name === 'email') {
         if(!isMailValid(reference, label, target)) {
             initialForm.email = '';
             button.disabled = true;
             return false;
         }
-    };
+    };   
 
-                
     initialForm[target?.name as keyof FormData] = target?.value;
+
 
     if(!Object.values(initialForm).includes('')) {
         button.disabled = false;
@@ -35,6 +34,8 @@ export const validInput:ValidInput = (initialForm:FormData, e:Event):boolean => 
 
 export const isEmpty:IsEmpty = (reference:HTMLDivElement, label:HTMLLabelElement, input:HTMLInputElement):boolean => {
 
+    clearAlert(reference, 'error');
+
     if(input.value.trim() === '') {
         generateAlert(reference, `The ${input.name[0].toUpperCase() + input.name.substring(1) } is empty`, 'error');
         input.classList.remove('field-valid');
@@ -42,8 +43,6 @@ export const isEmpty:IsEmpty = (reference:HTMLDivElement, label:HTMLLabelElement
         
         return false;
     }
-
-    clearAlert(reference);
 
     input.classList.add('field-valid');
     label.classList.add('field-valid');
@@ -63,7 +62,7 @@ export const isMailValid:IsMailValid = (reference:HTMLDivElement, label:HTMLLabe
         return false;
     }
 
-    clearAlert(reference);
+    clearAlert(reference, 'error');
 
     input.classList.add('field-valid');
     label.classList.add('field-valid');
@@ -82,24 +81,68 @@ const generateAlert:GenerateAlert = (reference:HTMLElement|null, message:string,
     p.textContent = message;
     p.classList.add(type);
     
-    if(!reference?.querySelector('.error')) reference?.appendChild(p);
+    if(!reference?.querySelector(type)) reference?.appendChild(p);
 
 }
 
-const clearAlert:ClearAlert = (reference:HTMLElement|null):void => reference?.querySelector('.error')?.remove();
+const clearAlert:ClearAlert = (reference:HTMLElement|null, classList:string):void => reference?.querySelector(`.${classList}`)?.remove();
 
 
-export const handleSubmit:HandleSubmit = async (initialForm:FormData, e:Event):Promise<void> => {
+export const handleSubmit:HandleSubmit = async (initialForm:FormData, e:Event, type):Promise<void> => {
 
     e.preventDefault();
+
+    const target:HTMLFormElement = e.target as HTMLFormElement;
 
     if (isFormValid(initialForm)) {
         console.error('Invalid form. Please complete all fields..');
         return;
     }
 
-    addNewUser(initialForm);
+    switch (type) {
+
+        case 'signup':
+
+            addNewUser(initialForm);        
+
+        break;
+
+        case 'login':
+
+            loginAsUser(initialForm)
+            
+                .then((res:FormData|undefined) => {
+                    
+                    if(res) {
+
+                        delete res.password;
+
+                        localStorage.setItem('logged', JSON.stringify(res));
+
+                        if(inputRemember?.checked) {
+                            localStorage.setItem('user', JSON.stringify(initialForm));
+                        } else {
+                            localStorage.removeItem('user');
+                        }
+
+                        window.location.href= `../../index.html`;
+
+                    } else {
+
+                        target.reset();
+
+                        clearAlert(target, 'error-alert');
+                        generateAlert(target.querySelector('.main-container-form'), 'The user you are trying to enter is not registered', 'error-alert');
+
+                    }
+
+                })
+                .catch(error => console.log(error))
+       break;
+        
+    }
+
 
 }
 
-const isFormValid = (form: FormData):boolean => Object.values(form).some((value: string): boolean => value.trim() === '');
+const isFormValid:IsFormValid = (form: FormData):boolean => Object.values(form).some((value: string): boolean => value.trim() === '');
